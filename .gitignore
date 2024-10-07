@@ -142,6 +142,8 @@ dist
 
 .serverless/
 
+# vscoee
+.vscode/
 # FuseBox cache
 
 .fusebox/
