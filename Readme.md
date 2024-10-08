@@ -17,8 +17,8 @@ To deploy this project on Cloudflare Workers:
 
 2. Clone the repository:
    ```
-   git clone https://github.com/your-username/saas-billing-app.git
-   cd saas-billing-app
+   git clone https://github.com/your-username/Simple-Billing-App-Cloudflare-Worker.git
+   cd Simple-Billing-App-Cloudflare-Worker
    ```
 
 3. Install dependencies:
