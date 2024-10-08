@@ -55,7 +55,7 @@ describe('SubscriptionHandler', () => {
     });
 
     it('should assign a subscription plan to a customer', async () => {
-        const customer: Customer = { id: 'customer-1', name: 'John Doe', subscriptionPlanId: 'plan-1', subscriptionStatus: 'active', email: 'john.doe@example.com', subscriptionStartDate: new Date().toISOString() };
+        const customer: Customer = { id: 'customer-1', name: 'John Doe', subscriptionPlanId: 'plan-2', subscriptionStatus: 'active', email: 'john.doe@example.com', subscriptionStartDate: new Date().toISOString() };
         await mockKV.put('customer:customer-1', JSON.stringify(customer));
 
         const result = await customerHandler.assignSubscriptionToCustomer('customer-1', 'plan-1');
