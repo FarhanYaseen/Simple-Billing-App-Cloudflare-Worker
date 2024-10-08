@@ -8,4 +8,4 @@ export async function handleScheduledPaymentRetry(env: any, invoiceId: string) {
     } catch (error) {
         console.error(`Failed to process retry payment for invoice ${invoiceId}:`, error);
     }
-}–
+}
