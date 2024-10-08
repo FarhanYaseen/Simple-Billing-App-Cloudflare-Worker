@@ -30,6 +30,13 @@ To deploy this project on Cloudflare Workers:
    ```toml
    id = "account-id"
    preview_id = "preview_id"
+   [vars]
+   SENDGRID_API_KEY = "your-sendgrid-api-key"
+   FROM_EMAIL = "your-email@example.com"
+   [[kv_namespaces]]
+   binding = "BILLING_KV"
+   id = "your-namespace-id"
+   preview_id = "your-preview-namespace-id"
    ```
 
 5. Create a KV namespace:
@@ -64,13 +71,3 @@ To run unit tests:
 ```
 npm test
 ```
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-
-This README provides an overview of the project, explains the design approach, and includes instructions for deployment and usage.
-
-To complete the project, we should also provide basic API documentation outlining the available endpoints, expected inputs, outputs, and error handling strategies. Let's create that documentation now.
-

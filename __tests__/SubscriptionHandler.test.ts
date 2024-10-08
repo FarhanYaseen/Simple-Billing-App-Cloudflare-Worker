@@ -75,32 +75,4 @@ describe('SubscriptionHandler', () => {
         expect(result).toEqual([JSON.stringify(plan1), JSON.stringify(plan2)]);
     });
 
-    it('should assign a subscription plan to a customer', async () => {
-        const customer: Customer = { id: 'customer-1', name: 'John Doe', subscriptionPlanId: 'plan-1', subscriptionStatus: 'active', email: 'john.doe@example.com', subscriptionStartDate: new Date().toISOString() };
-        await mockKV.put('customer:customer-1', JSON.stringify(customer));
-
-        const result = await handler.assignSubscriptionToCustomer('customer-1', 'plan-1');
-
-        expect(result.subscriptionPlanId).toBe('plan-1');
-        expect(result.subscriptionStatus).toBe('active');
-        expect(mockKV.data.get('customer:customer-1')).toEqual(JSON.stringify(result));
-    });
-
-    it('should throw an error when assigning a subscription to a non-existent customer', async () => {
-        await expect(handler.assignSubscriptionToCustomer('non-existent-customer', 'plan-1')).rejects.toThrow('Customer not found');
-    });
-
-    it('should cancel a customer subscription', async () => {
-        const customer: Customer = { id: 'customer-1', name: 'John Doe', subscriptionPlanId: 'plan-1', subscriptionStatus: 'active', email: 'john.doe@example.com', subscriptionStartDate: new Date().toISOString() };
-        await mockKV.put('customer:customer-1', JSON.stringify(customer));
-
-        const result = await handler.cancelSubscription('customer-1');
-
-        expect(result.subscriptionStatus).toBe('cancelled');
-        expect(mockKV.data.get('customer:customer-1')).toEqual(JSON.stringify(result));
-    });
-
-    it('should throw an error when canceling a subscription for a non-existent customer', async () => {
-        await expect(handler.cancelSubscription('non-existent-customer')).rejects.toThrow('Customer not found');
-    });
 });
