@@ -196,7 +196,7 @@ This document outlines the available endpoints, expected inputs, outputs, and er
 
 ### 7. Change Subscription Plan
 
-- **URL**: `/change-plan`
+- **URL**: `/subscriptions/change-plan`
 - **Method**: `POST`
 - **Input**:
     
