@@ -19,7 +19,6 @@ export class SubscriptionHandler {
 
     async getSubscriptionPlans(): Promise<SubscriptionPlan[]> {
         const plans = await this.env.BILLING_KV.list({ prefix: "plan:" });
-        console.log(plans);
         const result = await Promise.all(
             plans.keys.map((key: any) => this.env.BILLING_KV.get(key.name))
           );

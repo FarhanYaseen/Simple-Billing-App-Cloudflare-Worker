@@ -61,29 +61,37 @@ export class NotificationService {
     }
 
     private async sendEmail(to: string, subject: string, body: string) {
-        // In a real-world scenario, you would integrate with an email service API here
-        // This is a mock implementation for demonstration purposes
-        console.log(`Sending email to ${to}`);
-        console.log(`Subject: ${subject}`);
-        console.log(`Body: ${body}`);
+        console.log(`Attempting to send email to ${to}`);
 
-        return;
-        // Simulate API call to email service
-        const response = await fetch('https://api.emailservice.com/send', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${this.env.EMAIL_SERVICE_API_KEY}`
-            },
-            body: JSON.stringify({
-                to,
-                subject,
-                body
-            })
-        });
+        const msg = {
+            personalizations: [{ to: [{ email: to }] }],
+            from: { email: this.env.FROM_EMAIL },
+            subject,
+            content: [
+                { type: 'text/plain', value: body },
+                { type: 'text/html', value: body.replace(/\n/g, '<br>') }
+            ]
+        };
 
-        if (!response.ok) {
-            throw new Error('Failed to send email');
+        try {
+            const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${this.env.SENDGRID_API_KEY}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(msg)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.text();
+                throw new Error(`SendGrid API error: ${response.status} ${response.statusText} - ${errorData}`);
+            }
+
+            console.log(`Email sent successfully to ${to}`);
+        } catch (error) {
+            console.error(`Error sending email to ${to}:`, error);
+            throw new Error(`Failed to send email: ${error.message}`);
         }
     }
 }
