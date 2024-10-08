@@ -6,7 +6,7 @@ This document outlines the available endpoints, expected inputs, outputs, and er
 
 ### 1. Create Subscription Plan
 
-- **URL**: `/subscription-plan`
+- **URL**: `/subscription-plans`
 - **Method**: `POST`
 - **Input**:
     
@@ -41,7 +41,7 @@ This document outlines the available endpoints, expected inputs, outputs, and er
 
 ### 2. Get Subscription Plan
 
-- **URL**: `/subscription-plan/:id`
+- **URL**: `/subscription-plans/:id`
 - **Method**: `GET`
 - **Success Response**:
     - **Code**: 200

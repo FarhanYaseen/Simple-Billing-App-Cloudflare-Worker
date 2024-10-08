@@ -73,6 +73,10 @@ export class NotificationService {
             ]
         };
 
+        if (!this.env.SENDGRID_API_KEY) {
+            console.error('SENDGRID_API_KEY is not set');
+            return;
+        }
         try {
             const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
                 method: 'POST',
@@ -91,7 +95,7 @@ export class NotificationService {
             console.log(`Email sent successfully to ${to}`);
         } catch (error) {
             console.error(`Error sending email to ${to}:`, error);
-            throw new Error(`Failed to send email: ${error.message}`);
+            throw new Error(`Failed to send email: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
 }

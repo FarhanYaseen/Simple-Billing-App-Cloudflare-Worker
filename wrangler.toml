@@ -6,20 +6,17 @@ compatibility_flags = ["nodejs_compat"]
 
 [vars]
 ENVIRONMENT = "development"
+SENDGRID_API_KEY = "SENDGRID_API_KEY"
+
 
 [[kv_namespaces]]
 binding = "BILLING_KV"
 id = "3f13ffafb91ce05d3bc79bcb6a2ec4f7"
 preview_id = "11ddd7777ff64a95b50707d5708d066c"
 
-[durable_objects]
-bindings = [
-  { name = "BILLING_DO", class_name = "BillingDurableObject" }
-]
 
 [[migrations]]
 tag = "v1"
-new_classes = ["BillingDurableObject"]
 
 
 # Workers Logs

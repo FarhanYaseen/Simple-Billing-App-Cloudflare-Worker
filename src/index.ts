@@ -1,8 +1,6 @@
 import { CustomerHandler } from './handlers/customer';
 import { SubscriptionHandler } from './handlers/subscription';
 import { BillingEngine } from './services/billingEngine';
-import { BillingDurableObject } from './durableObjects/billingDurableObject';
-export { BillingDurableObject };
 import { PaymentHandler } from './handlers/payment';
 import { handleScheduledPaymentRetry } from './workers/paymentRetry';
 import { SubscriptionPlan } from './models/subscriptionPlan';

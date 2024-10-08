@@ -9,22 +9,6 @@ This project implements a billing app for a SaaS platform using Cloudflare Worke
 - Payment processing with retry logic
 - Customer notifications via email
 
-## Design Approach
-
-The application is designed to be serverless, utilizing Cloudflare Workers for all backend processes. This approach provides high performance, scalability, and cost-effectiveness.
-
-Key design decisions:
-
-1. **Modular Architecture**: The app is divided into separate modules (handlers, services, models) for better organization and maintainability.
-
-2. **Stateless Design**: To align with the serverless paradigm, the app is designed to be stateless, storing all data in Cloudflare KV.
-
-3. **Asynchronous Processing**: Long-running tasks like payment retries are handled asynchronously using Cloudflare Workers' scheduled events.
-
-4. **Error Handling**: Robust error handling is implemented throughout the app to ensure reliability.
-
-5. **Extensibility**: The modular design allows for easy addition of new features or integration with other services.
-
 ## Deployment
 
 To deploy this project on Cloudflare Workers:
@@ -44,8 +28,8 @@ To deploy this project on Cloudflare Workers:
 
 4. Configure your `wrangler.toml` file with your account details and KV namespace:
    ```toml
-   account_id = "your-account-id"
-   zone_id = "your-zone-id"
+   id = "account-id"
+   preview_id = "preview_id"
    ```
 
 5. Create a KV namespace:
@@ -56,14 +40,14 @@ To deploy this project on Cloudflare Workers:
 
 6. Deploy the worker:
    ```
-   wrangler publish
+   wrangler deploy
    ```
 
 ## Usage
 
 Once deployed, you can interact with the app using HTTP requests to your Cloudflare Worker's URL. Here are some example endpoints:
 
-- Create a subscription plan: POST /subscription-plan
+- Create a subscription plan: POST /subscription-plans
 - Assign a subscription to a customer: POST /customers/assign-subscription
 - Cancel a subscription: POST /customers/cancel-subscription
 - Create a customer: POST /customers
