@@ -32,40 +32,6 @@ export class BillingEngine {
     }
 
 
-
-    //   async handlePlanChange(customerId: string, newPlanId: string): Promise<Invoice> {
-    //     const customer = await this.getCustomer(customerId);
-    //     const oldPlan = await this.getSubscriptionPlan(customer.subscriptionPlanId);
-    //     const newPlan = await this.getSubscriptionPlan(newPlanId);
-
-    //     const daysInBillingCycle = this.getDaysInBillingCycle(oldPlan.billingCycle);
-    //     const daysRemaining = this.getDaysRemaining(customer.subscriptionStartDate, oldPlan.billingCycle);
-
-    //     const oldPlanProration = (oldPlan.price / daysInBillingCycle) * (daysInBillingCycle - daysRemaining);
-    //     const newPlanProration = (newPlan.price / daysInBillingCycle) * daysRemaining;
-
-    //     const proratedAmount = oldPlanProration + newPlanProration;
-
-    //     const invoiceId = crypto.randomUUID();
-    //     const dueDate = this.calculateDueDate('monthly'); // Assume immediate billing for plan changes
-
-    //     const invoice: Invoice = {
-    //       id: invoiceId,
-    //       customerId,
-    //       amount: proratedAmount,
-    //       dueDate,
-    //       paymentStatus: 'pending'
-    //     };
-
-    //     await this.env.BILLING_KV.put(`invoice:${invoiceId}`, JSON.stringify(invoice));
-
-    //     // Update customer's subscription
-    //     customer.subscriptionPlanId = newPlanId;
-    //     customer.subscriptionStartDate = new Date().toISOString(); // Reset start date to now
-    //     await this.env.BILLING_KV.put(`customer:${customerId}`, JSON.stringify(customer));
-
-    //     return invoice;
-    //   }
     async handlePlanChange(customerId: string, newPlanId: string): Promise<Invoice> {
         const customer = await this.getCustomer(customerId);
         const oldPlan = await this.getSubscriptionPlan(customer.subscriptionPlanId);
