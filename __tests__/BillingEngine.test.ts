@@ -1,7 +1,6 @@
 import { BillingEngine } from '../src/services/billingEngine';
 import { describe, it, beforeEach, expect, vi } from 'vitest';
 
-// Mock dependencies
 const mockEnv = {
     BILLING_KV: {
         get: vi.fn(),
@@ -20,7 +19,6 @@ vi.mock('../src/services/notificationService', () => {
 
 const billingEngine = new BillingEngine(mockEnv);
 
-// Test data
 const customerId = 'customer-123';
 const subscriptionPlanId = 'plan-456';
 const newSubscriptionPlanId = 'plan-789';
@@ -40,7 +38,6 @@ const newPlanData = {
     price: 150
 };
 
-// Helper function to set up mocks
 const setupGetMocks = () => {
     mockEnv.BILLING_KV.get.mockImplementation(async (key: string) => {
         if (key === `customer:${customerId}`) return JSON.stringify(customerData);
@@ -92,7 +89,7 @@ describe('BillingEngine', () => {
                 expect.any(String)
             );
             expect(invoice.customerId).toBe(customerId);
-            expect(invoice.amount).toBeGreaterThan(0); // Ensure some proration was calculated
+            expect(invoice.amount).toBeGreaterThan(0); 
             expect(invoice.paymentStatus).toBe('pending');
 
             expect(mockEnv.BILLING_KV.put).toHaveBeenCalledWith(

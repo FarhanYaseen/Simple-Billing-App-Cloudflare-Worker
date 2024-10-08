@@ -12,10 +12,7 @@ describe('NotificationService', () => {
         envMock = {
             EMAIL_SERVICE_API_KEY: 'dummy-key',
         };
-
         notificationService = new NotificationService(envMock);
-
-        // Mock the sendEmail method to avoid actual email sending during tests
         vi.spyOn(notificationService as any, 'sendEmail').mockResolvedValue(undefined);
     });
 
