@@ -64,7 +64,10 @@ To deploy this project on Cloudflare Workers:
 Once deployed, you can interact with the app using HTTP requests to your Cloudflare Worker's URL. Here are some example endpoints:
 
 - Create a subscription plan: POST /subscription-plan
-- Assign a subscription to a customer: POST /assign-subscription
+- Assign a subscription to a customer: POST /customers/assign-subscription
+- Cancel a subscription: POST /customers/cancel-subscription
+- Create a customer: POST /customers
+- Get subscription plans: GET /subscription-plans
 - Generate an invoice: POST /generate-invoice
 - Process a payment: POST /process-payment
 
