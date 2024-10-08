@@ -36,7 +36,9 @@ export class BillingEngine {
         const customer = await this.getCustomer(customerId);
         const oldPlan = await this.getSubscriptionPlan(customer.subscriptionPlanId);
         const newPlan = await this.getSubscriptionPlan(newPlanId);
-
+        if (oldPlan.id === newPlan.id) {
+            throw new Error('Customer already has a assigned to provided subscription plan');
+        }
         const daysInBillingCycle = this.getDaysInBillingCycle(oldPlan.billingCycle);
         const daysRemaining = this.getDaysRemaining(customer.subscriptionStartDate, oldPlan.billingCycle);
 
