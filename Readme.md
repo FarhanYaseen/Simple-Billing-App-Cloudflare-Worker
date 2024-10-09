@@ -61,6 +61,7 @@ Once deployed, you can interact with the app using HTTP requests to your Cloudfl
 - Get subscription plans: GET /subscription-plans
 - Generate an invoice: POST /generate-invoice
 - Process a payment: POST /process-payment
+- Get all customers: GET /customers
 
 Refer to the API documentation for detailed information on request/response formats for each endpoint.
 

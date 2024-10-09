@@ -31,24 +31,27 @@ export class BillingEngine {
         return invoice;
     }
 
-
     async handlePlanChange(customerId: string, newPlanId: string): Promise<Invoice> {
         const customer = await this.getCustomer(customerId);
         const oldPlan = await this.getSubscriptionPlan(customer.subscriptionPlanId);
         const newPlan = await this.getSubscriptionPlan(newPlanId);
-        if (oldPlan.id === newPlan.id) {
-            throw new Error('Customer already has a assigned to provided subscription plan');
-        }
-        const daysInBillingCycle = this.getDaysInBillingCycle(oldPlan.billingCycle);
-        const daysRemaining = this.getDaysRemaining(customer.subscriptionStartDate, oldPlan.billingCycle);
 
-        const oldPlanProration = (oldPlan.price / daysInBillingCycle) * (daysInBillingCycle - daysRemaining);
+        if (oldPlan.id === newPlan.id) {
+            throw new Error('Customer already has the assigned subscription plan');
+        }
+
+        const daysInBillingCycle = this.getDaysInBillingCycle(oldPlan.billingCycle);
+        const daysElapsed = this.getDaysElapsed(customer.subscriptionStartDate);
+        const daysRemaining = daysInBillingCycle - daysElapsed;
+
+        // Calculate proration based on elapsed and remaining days
+        const oldPlanProration = (oldPlan.price / daysInBillingCycle) * daysElapsed;
         const newPlanProration = (newPlan.price / daysInBillingCycle) * daysRemaining;
 
-        const proratedAmount = oldPlanProration + newPlanProration;
+        const proratedAmount = newPlanProration - oldPlanProration;
 
         const invoiceId = crypto.randomUUID();
-        const dueDate = this.calculateDueDate('monthly'); // Assume immediate billing for plan changes
+        const dueDate = this.calculateDueDate(newPlan.billingCycle);
 
         const invoice: Invoice = {
             id: invoiceId,
@@ -62,7 +65,9 @@ export class BillingEngine {
 
         // Update customer's subscription
         customer.subscriptionPlanId = newPlanId;
+        customer.subscriptionStartDate = new Date().toISOString(); // Reset the start date for the new plan
         await this.env.BILLING_KV.put(`customer:${customerId}`, JSON.stringify(customer));
+
         return invoice;
     }
 
@@ -88,11 +93,9 @@ export class BillingEngine {
         return billingCycle === 'monthly' ? 30 : 365;
     }
 
-    private getDaysRemaining(startDate: string, billingCycle: 'monthly' | 'yearly'): number {
+    private getDaysElapsed(startDate: string): number {
         const start = new Date(startDate);
-        const end = new Date(start);
-        end.setDate(end.getDate() + this.getDaysInBillingCycle(billingCycle));
         const now = new Date();
-        return Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+        return Math.ceil((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
     }
 }

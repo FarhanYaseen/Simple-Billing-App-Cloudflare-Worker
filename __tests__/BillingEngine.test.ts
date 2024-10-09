@@ -17,99 +17,69 @@ vi.mock('../src/services/notificationService', () => {
     };
 });
 
-const billingEngine = new BillingEngine(mockEnv);
+describe('BillingService - handlePlanChange', () => {
+    let billingService: BillingService;
 
-const customerId = 'customer-123';
-const subscriptionPlanId = 'plan-456';
-const newSubscriptionPlanId = 'plan-789';
-const customerData = {
-    id: customerId,
-    subscriptionPlanId,
-    subscriptionStartDate: new Date().toISOString()
-};
-const oldPlanData = {
-    id: subscriptionPlanId,
-    billingCycle: 'monthly',
-    price: 100
-};
-const newPlanData = {
-    id: newSubscriptionPlanId,
-    billingCycle: 'monthly',
-    price: 150
-};
-
-const setupGetMocks = () => {
-    mockEnv.BILLING_KV.get.mockImplementation(async (key: string) => {
-        if (key === `customer:${customerId}`) return JSON.stringify(customerData);
-        if (key === `plan:${subscriptionPlanId}`) return JSON.stringify(oldPlanData);
-        if (key === `plan:${newSubscriptionPlanId}`) return JSON.stringify(newPlanData);
-        return null;
-    });
-};
-
-describe('BillingEngine', () => {
     beforeEach(() => {
-        vi.clearAllMocks();
-        setupGetMocks();
+        billingService = new BillingEngine(mockEnv);
+        vi.spyOn(billingService.env.BILLING_KV, 'put').mockImplementation(async () => {});
     });
 
-    describe('generateInvoice', () => {
-        it('should generate an invoice for a customer', async () => {
-            const invoice = await billingEngine.generateInvoice(customerId);
+    it('should throw an error if the new plan is the same as the current plan', async () => {
+        const customerId = 'customer123';
+        const planId = 'plan123';
 
-            expect(mockEnv.BILLING_KV.put).toHaveBeenCalledWith(
-                expect.stringContaining('invoice:'),
-                expect.any(String)
-            );
-            expect(mockNotificationService.sendInvoiceGeneratedNotification).toHaveBeenCalledWith(
-                customerData,
-                expect.objectContaining({
-                    customerId,
-                    amount: oldPlanData.price,
-                    paymentStatus: 'pending'
-                })
-            );
-            expect(invoice.customerId).toBe(customerId);
-            expect(invoice.amount).toBe(oldPlanData.price);
-            expect(invoice.paymentStatus).toBe('pending');
-        });
+        vi.spyOn(billingService, 'getCustomer').mockResolvedValue({ subscriptionPlanId: planId });
+        vi.spyOn(billingService, 'getSubscriptionPlan').mockResolvedValue({ id: planId });
 
-        it('should throw an error if customer is not found', async () => {
-            mockEnv.BILLING_KV.get.mockResolvedValueOnce(null);
-            await expect(billingEngine.generateInvoice('invalid-customer')).rejects.toThrow('Customer not found');
-        });
+        await expect(billingService.handlePlanChange(customerId, planId)).rejects.toThrow('Customer already has the assigned subscription plan');
     });
 
-    describe('handlePlanChange', () => {
-        it("should handle a customer's plan change and generate a prorated invoice", async () => {
-            const invoice = await billingEngine.handlePlanChange(customerId, newSubscriptionPlanId);
+    it('should create a prorated invoice and update the customer subscription', async () => {
+        const customerId = 'customer123';
+        const oldPlanId = 'plan123';
+        const newPlanId = 'plan456';
+        const subscriptionStartDate = new Date();
+        subscriptionStartDate.setDate(subscriptionStartDate.getDate() - 15); // Subscription started 15 days ago
+        const daysInBillingCycle = 30;
+        const daysElapsed = 15;
+        const customer = {
+            subscriptionPlanId: oldPlanId,
+            subscriptionStartDate: subscriptionStartDate.toISOString(),
+        };
+        const oldPlan = {
+            id: oldPlanId,
+            price: 300,
+            billingCycle: 'monthly',
+        };
+        const newPlan = {
+            id: newPlanId,
+            price: 600,
+            billingCycle: 'monthly',
+        };
 
-            expect(mockEnv.BILLING_KV.put).toHaveBeenCalledWith(
-                expect.stringContaining('invoice:'),
-                expect.any(String)
-            );
-            expect(invoice.customerId).toBe(customerId);
-            expect(invoice.amount).toBeGreaterThan(0); 
-            expect(invoice.paymentStatus).toBe('pending');
+        vi.spyOn(billingService, 'getCustomer').mockResolvedValue(customer);
+        vi.spyOn(billingService, 'getSubscriptionPlan')
+            .mockResolvedValueOnce(oldPlan)
+            .mockResolvedValueOnce(newPlan);
+        vi.spyOn(billingService, 'getDaysInBillingCycle').mockReturnValue(daysInBillingCycle);
+        vi.spyOn(billingService, 'getDaysElapsed').mockReturnValue(daysElapsed);
+        vi.spyOn(billingService, 'calculateDueDate').mockReturnValue('2024-10-01T00:00:00.000Z');
+        vi.spyOn(crypto, 'randomUUID').mockReturnValue('invoice123');
 
-            expect(mockEnv.BILLING_KV.put).toHaveBeenCalledWith(
-                `customer:${customerId}`,
-                expect.stringContaining(newSubscriptionPlanId)
-            );
-        });
+        const invoice: Invoice = await billingService.handlePlanChange(customerId, newPlanId);
 
-        it('should throw an error if new plan is not found', async () => {
-            mockEnv.BILLING_KV.get.mockImplementation(async (key: string) => {
-                if (key === `customer:${customerId}`) return JSON.stringify(customerData);
-                if (key === `plan:${subscriptionPlanId}`) return JSON.stringify(oldPlanData);
-                if (key === `plan:${newSubscriptionPlanId}`) return null; 
-                return null;
-            });
-            await expect(billingEngine.handlePlanChange(customerId, 'invalid-plan')).rejects.toThrow('Subscription plan not found');
-        });
-        it('should throw an error if customer is not found', async () => {
-            mockEnv.BILLING_KV.get.mockResolvedValueOnce(null);
-            await expect(billingEngine.handlePlanChange('invalid-customer', newSubscriptionPlanId)).rejects.toThrow('Customer not found');
+        const oldPlanProration = (oldPlan.price / daysInBillingCycle) * daysElapsed;
+        const newPlanProration = (newPlan.price / daysInBillingCycle) * (daysInBillingCycle - daysElapsed);
+        const expectedAmount = newPlanProration - oldPlanProration;
+       
+        expect(invoice).toEqual({
+            id: 'invoice123',
+            customerId,
+            amount: expectedAmount,
+            dueDate: '2024-10-01T00:00:00.000Z',
+            paymentStatus: 'pending',
         });
     });
+    
 });

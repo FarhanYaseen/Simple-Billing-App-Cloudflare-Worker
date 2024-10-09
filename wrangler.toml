@@ -6,8 +6,8 @@ compatibility_flags = ["nodejs_compat"]
 
 [vars]
 ENVIRONMENT = "development"
-SENDGRID_API_KEY = "SENDGRID_API_KEY"
-FROM_EMAIL = "noreply@saas-billing-app.com"
+# SENDGRID_API_KEY = "SENDGRID_API_KEY"
+# FROM_EMAIL = "noreply@saas-billing-app.com"
 
 
 [[kv_namespaces]]

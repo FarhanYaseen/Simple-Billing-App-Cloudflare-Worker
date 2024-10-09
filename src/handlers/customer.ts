@@ -14,6 +14,17 @@ export class CustomerHandler {
     return customer ? JSON.parse(customer) : null;
   }
 
+  async getCustomers(): Promise<Customer[]> {
+    const customers = await this.env.BILLING_KV.list({ prefix: "customer:" });
+    const result = await Promise.all(
+      customers.keys.map((key: any) => this.env.BILLING_KV.get(key.name))
+    );
+    if (result.length === 0) {
+      throw new Error('No customers found');
+    }
+    return result;
+  }
+
   async assignSubscriptionToCustomer(customerId: string, planId: string): Promise<Customer> {
     const customerKey = `customer:${customerId}`;
     const customerData = await this.env.BILLING_KV.get(customerKey);
@@ -23,8 +34,8 @@ export class CustomerHandler {
     }
 
     const customer: Customer = JSON.parse(customerData);
-    if (customer.subscriptionPlanId === planId) {
-      throw new Error('Customer already has a assigned to provided subscription plan');
+    if (customer.subscriptionPlanId === planId && customer.subscriptionStatus === 'active') {
+      throw new Error('Customer already has a subscription assigned to provided subscription plan');
     }
 
     customer.subscriptionPlanId = planId;

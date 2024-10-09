@@ -227,6 +227,77 @@ This document outlines the available endpoints, expected inputs, outputs, and er
     - **Code**: 404
     - **Content**: `{ "error": "Customer or plan not found" }`
 
+### 8. Get All Customers
+
+- **URL**: `/customers`
+- **Method**: `GET`
+- **Success Response**:
+    - **Code**: 200
+    - **Content**:
+
+        ```json
+        [
+          {
+            "id": "customer-uuid",
+            "name": "John Doe",
+            "email": "john@example.com",
+            "subscriptionPlanId": "plan-uuid",
+            "subscriptionStatus": "active"
+          },
+          {
+            "id": "customer-uuid",
+            "name": "John Doe",
+            "email": "john@example.com",
+            "subscriptionPlanId": "plan-uuid",
+            "subscriptionStatus": "active"
+          }
+        ]
+
+        ```
+        
+- **Error Response**:
+    - **Code**: 404
+    - **Content**: `{ "error": "Customer not found" }`
+
+### 9. Get All Subscription Plans
+
+- **URL**: `/subscription-plans`
+- **Method**: `GET`
+- **Success Response**:
+    - **Code**: 200
+    - **Content**:
+
+        ```json
+        [
+          {
+            "id": "plan-uuid",
+            "name": "Basic Plan",
+            "billingCycle": "monthly",
+            "price": 9.99,
+            "status": "active"
+          },
+          {
+            "id": "plan-uuid",
+            "name": "Basic Plan",
+            "billingCycle": "monthly",
+            "price": 9.99,
+            "status": "active"
+          }
+        ]
+        
+        ```
+        
+- **Error Response**:
+    - **Code**: 404
+    - **Content**: `{ "error": "Subscription plan not found" }`
+
+      
+        
+
+
+        
+
+
 ## Error Handling
 
 The API uses conventional HTTP response codes to indicate the success or failure of an API request. In general:
